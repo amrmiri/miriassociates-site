@@ -146,7 +146,7 @@ textarea{padding:12px 14px;font-size:16px;line-height:22px;resize:vertical;min-h
     <div class="hero-in">
       <span class="time"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="#093F33" stroke-width="2" stroke-linecap="round"><circle cx="13" cy="13" r="10"/><path d="M13 7.5 V13 L16.5 15"/></svg>10 min</span>
       <h1 class="h-34" tabindex="-1">Research: spending analytics in Saudi banks</h1>
-      <span class="by"><span class="initials" aria-hidden="true">AM</span><span>Run by <b>Amr Miri</b> · <a href="tel:+966504330516">+966 50 433 0516</a></span></span>
+      <span class="by"><span class="initials" aria-hidden="true">MA</span><span>Run by <b>Miri &amp; Associates</b> ·<a href="tel:+966504330516">+966 50 433 0516</a></span></span>
     </div>
   </header>
   <main class="flat">
@@ -219,7 +219,7 @@ textarea{padding:12px 14px;font-size:16px;line-height:22px;resize:vertical;min-h
   <main>
     <div class="card step">
       <div class="step-head"><span class="num">1</span><h2>Screen-record your bank's texts</h2></div>
-      <p class="step-body">60–90 seconds, about 50 transactions. Scroll slowly.</p>
+      <p class="step-body">Record at least 60 seconds, scrolling slowly. You need at least 50 texts to qualify.</p>
     </div>
     <div class="card step wide">
       <div class="step-head"><span class="num">2</span><h2>Upload it to ChatGPT with this message</h2></div>
@@ -310,8 +310,8 @@ textarea{padding:12px 14px;font-size:16px;line-height:22px;resize:vertical;min-h
 
 <template id="contact">
   <div class="card contact">
-    <span class="initials" aria-hidden="true">AM</span>
-    <div class="contact-who"><b>Amr Miri</b><span>+966 50 433 0516</span></div>
+    <span class="initials" aria-hidden="true">MA</span>
+    <div class="contact-who"><b>Miri &amp; Associates</b><span>+966 50 433 0516</span></div>
     <div class="pills">
       <a class="pill" href="tel:+966504330516">Call</a>
       <a class="pill solid" href="https://wa.me/966504330516">WhatsApp</a>
@@ -326,6 +326,7 @@ textarea{padding:12px 14px;font-size:16px;line-height:22px;resize:vertical;min-h
   var API = 'https://script.google.com/macros/s/AKfycbzuNPYH-eOchpx4IELuY7nDZ6L2EgwgskvM1LGqQcn601eSiHmRDet19yICt7H2R54/exec';
   var STORE = 'research-v1';
   var SENT = 'research-sent';
+  var MIN_TEXTS = 50;
   var PROMPT = "Please help me share my bank's text format, with no private details.\n\n" +
     "Copy every bank text in this screen recording exactly as written, but:\n" +
     "- replace every number with 9 (45.20 → 99.99)\n" +
@@ -472,9 +473,9 @@ textarea{padding:12px 14px;font-size:16px;line-height:22px;resize:vertical;min-h
       } else status = 'ChatGPT missed the numbers this time. Start a new chat, send the message again, and paste the new reply.';
       tone = 'bad';
     }
-    else if (n < 3) { status = 'Paste the whole reply, at least 3 texts.'; tone = 'bad'; }
-    else status = 'All clear: every number is a 9.';
-    answerOk = hasText && !a.cannot && !!a.sender && !a.headBad && a.bad.length === 0 && n >= 3;
+    else if (n < MIN_TEXTS) { status = 'We need at least ' + MIN_TEXTS + ' texts. This reply has ' + n + '. Record a little longer, then try again.'; tone = 'bad'; }
+    else status = 'All clear: ' + n + ' texts, and every number is a 9.';
+    answerOk = hasText && !a.cannot && !!a.sender && !a.headBad && a.bad.length === 0 && n >= MIN_TEXTS;
 
     $('status').hidden = status === '';
     $('status').className = 'status' + (tone === 'bad' ? ' bad' : '');
@@ -484,7 +485,7 @@ textarea{padding:12px 14px;font-size:16px;line-height:22px;resize:vertical;min-h
 
     var waiting = '';
     if (!hasText) waiting = "Paste ChatGPT's reply";
-    else if (!answerOk) waiting = (a.headBad || a.bad.length) ? 'Every number must be a 9' : 'Check the reply above';
+    else if (!answerOk) waiting = (a.headBad || a.bad.length) ? 'Every number must be a 9' : (a.sender && !a.cannot && n < MIN_TEXTS) ? 'At least ' + MIN_TEXTS + ' texts' : 'Check the reply above';
     setGo($('submit'), waiting, 'Submit');
   }
   $('nine').addEventListener('click', function () {
